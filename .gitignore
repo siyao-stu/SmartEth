@@ -1,0 +1,31 @@
+# Build outputs
+build/
+*.o
+*.elf
+*.bin
+*.hex
+*.map
+*.img
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary
+tmp/
+*.log
+
+# QEMU
+*-softmmu/
+qemu/build/
+
+# SystemC
+systemc-*/
+*.a
+*.la
+
+# OS
+.DS_Store
+Thumbs.db
