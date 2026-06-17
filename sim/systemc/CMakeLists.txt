@@ -4,8 +4,14 @@ project(smarteth_sc LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# SystemC install prefix (local build)
-set(SYSTEMC_HOME "/home/wangsiyao/tools/systemc/install" CACHE PATH "SystemC installation prefix")
+# SystemC install prefix — set SYSTEMC_HOME env var, or override via -D
+# Default: ../tools/systemc/install (relative to project root)
+set(SYSTEMC_HOME_DEFAULT "${CMAKE_SOURCE_DIR}/../tools/systemc/install" CACHE PATH "Default SystemC prefix")
+if(DEFINED ENV{SYSTEMC_HOME})
+    set(SYSTEMC_HOME "$ENV{SYSTEMC_HOME}" CACHE PATH "SystemC installation prefix" FORCE)
+else()
+    set(SYSTEMC_HOME "${SYSTEMC_HOME_DEFAULT}" CACHE PATH "SystemC installation prefix")
+endif()
 
 find_path(SYSTEMC_INCLUDE_DIR systemc.h
     PATHS ${SYSTEMC_HOME}/include

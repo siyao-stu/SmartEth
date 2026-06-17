@@ -134,7 +134,7 @@ cd firmware/qemu-dev
 ./build.sh qemu
 ```
 
-编译产物: `/home/wangsiyao/code/qemu/build/qemu-system-riscv64`
+编译产物: `<project_root>/../qemu/build/qemu-system-riscv64`
 
 ### 编译 RTOS 固件（含 PCI 测试）
 
@@ -245,7 +245,7 @@ gdb-multiarch -q \
 ## 常见问题
 
 **Q: QEMU 编译报错**
-A: 确认 QEMU 源码在 `/home/wangsiyao/code/qemu`。首次需要 `./build.sh reconfigure`。
+A: 确认 QEMU 源码在 `<project_root>/../qemu`。首次需要 `./build.sh reconfigure`。
 
 **Q: QEMU 启动报 ROM 区域重叠**
 A: 确认加了 `-bios none` 参数，避免 OpenSBI 与固件加载地址冲突。

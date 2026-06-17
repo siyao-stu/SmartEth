@@ -17,7 +17,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(realpath "$SCRIPT_DIR/../..")"
-QEMU_BUILD_DIR="/home/wangsiyao/code/qemu/build"
+QEMU_BUILD_DIR="${QEMU_BUILD_DIR:-$(realpath "$PROJECT_DIR/../qemu/build")}"
 SYSTEMC_BIN="$SCRIPT_DIR/build/smartnic_sc"
 DEFAULT_ELF="$PROJECT_DIR/firmware/rtos/smartnic_rtos.elf"
 SOCKET_PATH="${SOCKET_PATH:-/tmp/sc_bridge.sock}"

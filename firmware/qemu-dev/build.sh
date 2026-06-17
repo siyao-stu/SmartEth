@@ -12,7 +12,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-QEMU_SRC="${QEMU_SRC:-$(realpath "$SCRIPT_DIR/../../../code/qemu" 2>/dev/null || echo "/home/wangsiyao/code/qemu")}"
+QEMU_SRC="${QEMU_SRC:-$(realpath "$SCRIPT_DIR/../../../code/qemu" 2>/dev/null || realpath "$SCRIPT_DIR/../../../../qemu" 2>/dev/null || echo "")}"
 BUILD_DIR="${BUILD_DIR:-$QEMU_SRC/build}"
 FIRMWARE_DIR="$(realpath "$SCRIPT_DIR/..")"
 
