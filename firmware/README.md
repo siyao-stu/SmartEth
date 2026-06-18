@@ -54,9 +54,11 @@ firmware/
 │   ├── libc_supp.c   # libc 补充函数
 │   ├── FreeRTOSConfig.h
 │   └── FreeRTOS-Kernel/  # FreeRTOS 内核源码
-├── qemu-dev/         # QEMU 自定义 PCIe 设备模型
-│   ├── smarteth_pci.c # SmartEth PCIe 设备 (QOM)
-│   └── build.sh      # 编译集成脚本
+├── qemu-dev/                 # QEMU 自定义 PCIe 设备模型
+│   ├── smarteth_pci.c        # Phase 2: SmartEth PCIe 设备 (QOM)
+│   ├── smarteth_sc_bridge.c  # Phase 3: QEMU-SystemC 桥接设备
+│   ├── sc_protocol.h         # QEMU-SystemC 通信协议头文件
+│   └── build.sh              # 编译集成脚本
 └── README.md         # 本文件
 ```
 
@@ -230,11 +232,16 @@ qemu-system-riscv64 -M virt -m 256M -nographic -bios none \
 [TEST] DEV_ID = 0x52414d53  PASS
 [TEST] STATUS = 0x1  PASS (device ready)
 [TEST] SCRATCH[0] = 0x0  PASS
+[TEST] SCRATCH[1] = 0xffffffff  PASS
+[TEST] SCRATCH[2] = 0xaaaaaaaa  PASS
 [TEST] SCRATCH[3] = 0x12345678  PASS
+[TEST] SCRATCH[4] = 0xdeadbeef  PASS
 [TEST] CTRL_RESET: SCRATCH0 after reset = 0x0  PASS
 [TEST] MAC = 52:54:0:12:34:56  PASS
 [TEST] DMA started (reading 256 bytes from guest memory)...
 [TEST] DMA completed  PASS
+[TEST] Triggering device interrupt (REG_IRQ_TEST)...
+[TEST] IRQ_STS after trigger = 0x2
 [TEST] Interrupt status bit set  PASS (device side)
 ====== Tests PASSED ======
 ```
