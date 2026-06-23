@@ -26,6 +26,17 @@
 #define REG_DMA_LEN    0x050
 #define REG_DMA_CTRL   0x058
 #define REG_DMA_STS    0x05C
+/* Descriptor ring registers (Phase 4) */
+#define REG_TX_RING_BASE_LO  0x300
+#define REG_TX_RING_BASE_HI  0x304
+#define REG_TX_RING_SIZE     0x308
+#define REG_TX_DOORBELL      0x30C
+#define REG_TX_TAIL          0x310
+#define REG_RX_RING_BASE_LO  0x320
+#define REG_RX_RING_BASE_HI  0x324
+#define REG_RX_RING_SIZE     0x328
+#define REG_RX_DOORBELL      0x32C
+#define REG_RX_TAIL          0x330
 #define REG_DEV_ID     0x100
 #define REG_IRQ_TEST   0x200
 
@@ -39,9 +50,23 @@
 /* IRQ bits */
 #define IRQ_DMA_DONE    0x00000001
 #define IRQ_TEST        0x00000002
+#define IRQ_TX_DONE     0x00000004
+#define IRQ_RX          0x00000008
 
 /* DMA control */
 #define DMA_START       0x00000001
+
+/* Descriptor flags (Phase 4) */
+#define DESC_FLAG_OWN   0x80000000u
+#define DESC_FLAG_DONE  0x40000000u
+#define DESC_FLAG_ERR   0x20000000u
+
+/* Descriptor ring entry — 16 bytes */
+struct smarteth_desc {
+    uint64_t addr;
+    uint32_t length;
+    uint32_t flags;
+} __attribute__((packed));
 
 /* PCI config register offsets */
 #define PCI_VENDOR_ID   0x00

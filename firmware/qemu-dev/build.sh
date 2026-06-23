@@ -14,6 +14,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 QEMU_SRC="${QEMU_SRC:-$(realpath "$SCRIPT_DIR/../../../code/qemu" 2>/dev/null || realpath "$SCRIPT_DIR/../../../../qemu" 2>/dev/null || echo "")}"
 BUILD_DIR="${BUILD_DIR:-$QEMU_SRC/build}"
+BUILD_DIR_X86="${BUILD_DIR_X86:-${QEMU_SRC}/build-x86}"
 FIRMWARE_DIR="$(realpath "$SCRIPT_DIR/..")"
 
 # ------- 颜色 -------
@@ -85,7 +86,23 @@ EOF
     fi
 }
 
-# ------- 构建 QEMU -------
+# ------- 确保设备在目标配置中启用 -------
+enable_in_target_config() {
+    local config_define="$1"
+    local target="$2"
+    local config_file="$BUILD_DIR/${target}-config-devices.h"
+
+    if [ -f "$config_file" ]; then
+        if ! grep -q "$config_define" "$config_file" 2>/dev/null; then
+            echo "#define $config_define 1" >> "$config_file"
+            info "  Enabled $config_define in ${target} config"
+        else
+            info "  Already enabled in ${target} config"
+        fi
+    fi
+}
+
+# ------- 构建 QEMU (riscv64) -------
 build_qemu() {
     local devs="${1:-smarteth}"
 
@@ -105,10 +122,54 @@ build_qemu() {
         integrate_device "$devs"
     fi
 
+    # Ensure enabled in RISC-V target config
+    case "$devs" in
+        smarteth)    enable_in_target_config CONFIG_SMARTETH_PCI       riscv64-softmmu ;;
+        smarteth-sc) enable_in_target_config CONFIG_SMARTETH_SC_BRIDGE riscv64-softmmu ;;
+    esac
+
     info "Rebuilding QEMU (riscv64-softmmu)..."
     cd "$BUILD_DIR"
     ninja qemu-system-riscv64 2>&1 | tail -20
     info "QEMU built: $BUILD_DIR/qemu-system-riscv64"
+}
+
+# ------- 构建 QEMU (x86_64, Phase 4) -------
+build_qemu_x86() {
+    local devs="${1:-smarteth-sc}"
+
+    # Integrate device(s) into QEMU source tree
+    if [ "$devs" = "all" ]; then
+        integrate_device smarteth
+        integrate_device smarteth-sc
+    else
+        integrate_device "$devs"
+    fi
+
+    info "Configuring QEMU for x86_64-softmmu..."
+    mkdir -p "$BUILD_DIR_X86"
+    cd "$BUILD_DIR_X86"
+    "$QEMU_SRC/configure" --target-list=x86_64-softmmu --enable-debug
+
+    # Ensure enabled in x86_64 target config
+    local config_file="$BUILD_DIR_X86/x86_64-softmmu-config-devices.h"
+    if [ -f "$config_file" ]; then
+        case "$devs" in
+            smarteth)
+                echo "#define CONFIG_SMARTETH_PCI 1" >> "$config_file" ;;
+            smarteth-sc)
+                echo "#define CONFIG_SMARTETH_SC_BRIDGE 1" >> "$config_file" ;;
+            all)
+                echo "#define CONFIG_SMARTETH_PCI 1" >> "$config_file"
+                echo "#define CONFIG_SMARTETH_SC_BRIDGE 1" >> "$config_file" ;;
+        esac
+        info "  Patched x86_64 config for $devs"
+    fi
+
+    info "Building QEMU (x86_64-softmmu)..."
+    cd "$BUILD_DIR_X86"
+    ninja qemu-system-x86_64 2>&1 | tail -20
+    info "QEMU x86_64 built: $BUILD_DIR_X86/qemu-system-x86_64"
 }
 
 # ------- 运行测试 -------
@@ -140,8 +201,9 @@ case "${1:-qemu}" in
     reconfigure) build_qemu reconfigure ;;
     test)    run_test "${@:2}" ;;
     device)  integrate_device "${2:-smarteth}" ;;
+    x86)     build_qemu_x86 "${2:-smarteth-sc}" ;;
     *)
-        echo "Usage: $0 {qemu|smarteth-sc|all|reconfigure|test|device}"
+        echo "Usage: $0 {qemu|smarteth-sc|all|reconfigure|test|device|x86}"
         exit 1
         ;;
 esac

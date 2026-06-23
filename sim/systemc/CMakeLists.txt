@@ -34,6 +34,7 @@ set(SOURCES
     src/reg_block.cpp
     src/dma_engine.cpp
     src/pkt_proc.cpp
+    src/net_if.cpp
 )
 
 add_executable(smartnic_sc ${SOURCES})

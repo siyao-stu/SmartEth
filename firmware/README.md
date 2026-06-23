@@ -57,8 +57,13 @@ firmware/
 ├── qemu-dev/                 # QEMU 自定义 PCIe 设备模型
 │   ├── smarteth_pci.c        # Phase 2: SmartEth PCIe 设备 (QOM)
 │   ├── smarteth_sc_bridge.c  # Phase 3: QEMU-SystemC 桥接设备
-│   ├── sc_protocol.h         # QEMU-SystemC 通信协议头文件
-│   └── build.sh              # 编译集成脚本
+│   ├── sc_protocol.h         # QEMU-SystemC 通信协议头文件 (含 Phase 4 描述符环)
+│   └── build.sh              # 编译集成脚本 (支持 x86_64 QEMU 构建)
+├── host-driver/              # Phase 4: Linux 主机 PCI 驱动
+│   ├── driver/
+│   │   └── smarteth_main.c   # Linux PCI 网卡驱动 (MMIO, MSI-X, DMA 描述符环)
+│   ├── initramfs_source/     # initramfs 集成配置 (TODO)
+│   └── test/                 # 网络侧测试工具 (TODO)
 └── README.md         # 本文件
 ```
 

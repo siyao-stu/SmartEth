@@ -101,24 +101,35 @@ struct MsiIrqMsg {
 
 /* Register offsets (mirrors firmware/qemu-dev/smarteth_pci.c) */
 enum ScRegOffset : uint64_t {
-    SC_REG_CTRL      = 0x000,
-    SC_REG_STATUS    = 0x004,
-    SC_REG_IRQ_EN    = 0x008,
-    SC_REG_IRQ_STS   = 0x00C,
-    SC_REG_MAC_LO    = 0x010,
-    SC_REG_MAC_HI    = 0x014,
-    SC_REG_SCRATCH0  = 0x020,
-    SC_REG_SCRATCH1  = 0x024,
-    SC_REG_SCRATCH2  = 0x028,
-    SC_REG_SCRATCH3  = 0x02C,
-    SC_REG_DMA_SRC   = 0x040,
-    SC_REG_DMA_DST   = 0x048,
-    SC_REG_DMA_LEN   = 0x050,
-    SC_REG_DMA_CTRL  = 0x058,
-    SC_REG_DMA_STS   = 0x05C,
-    SC_REG_DEV_ID    = 0x100,
-    SC_REG_IRQ_TEST  = 0x200,
-    SC_REG_COUNT     = 0x400,
+    SC_REG_CTRL            = 0x000,
+    SC_REG_STATUS          = 0x004,
+    SC_REG_IRQ_EN          = 0x008,
+    SC_REG_IRQ_STS         = 0x00C,
+    SC_REG_MAC_LO          = 0x010,
+    SC_REG_MAC_HI          = 0x014,
+    SC_REG_SCRATCH0        = 0x020,
+    SC_REG_SCRATCH1        = 0x024,
+    SC_REG_SCRATCH2        = 0x028,
+    SC_REG_SCRATCH3        = 0x02C,
+    SC_REG_DMA_SRC         = 0x040,
+    SC_REG_DMA_DST         = 0x048,
+    SC_REG_DMA_LEN         = 0x050,
+    SC_REG_DMA_CTRL        = 0x058,
+    SC_REG_DMA_STS         = 0x05C,
+    /* Descriptor ring registers (Phase 4) */
+    SC_REG_TX_RING_BASE_LO = 0x300,
+    SC_REG_TX_RING_BASE_HI = 0x304,
+    SC_REG_TX_RING_SIZE    = 0x308,
+    SC_REG_TX_DOORBELL     = 0x30C,
+    SC_REG_TX_TAIL         = 0x310,
+    SC_REG_RX_RING_BASE_LO = 0x320,
+    SC_REG_RX_RING_BASE_HI = 0x324,
+    SC_REG_RX_RING_SIZE    = 0x328,
+    SC_REG_RX_DOORBELL     = 0x32C,
+    SC_REG_RX_TAIL         = 0x330,
+    SC_REG_DEV_ID          = 0x100,
+    SC_REG_IRQ_TEST        = 0x200,
+    SC_REG_COUNT           = 0x400,
 };
 
 /* Control/status bits */
@@ -127,9 +138,23 @@ enum ScRegOffset : uint64_t {
 #define SC_STATUS_DMA_BSY  0x00000002
 #define SC_IRQ_DMA_DONE    0x00000001
 #define SC_IRQ_TEST        0x00000002
+#define SC_IRQ_TX_DONE     0x00000004
+#define SC_IRQ_RX          0x00000008
 #define SC_DMA_START       0x00000001
 #define SC_DMA_DIR_WRITE   0x00000002
 #define SC_DMA_IRQ_EN      0x00000004
+
+/* Descriptor flags (Phase 4) */
+#define SMARTETH_DESC_FLAG_OWN  0x80000000u
+#define SMARTETH_DESC_FLAG_DONE 0x40000000u
+#define SMARTETH_DESC_FLAG_ERR  0x20000000u
+
+/* Descriptor ring entry — 16 bytes */
+struct SmartEthDesc {
+    uint64_t addr;    /* DMA address of packet buffer */
+    uint32_t length;  /* buffer length / data length */
+    uint32_t flags;   /* SMARTETH_DESC_FLAG_* */
+} __attribute__((packed));
 
 /* Device ID */
 #define SC_DEV_ID          0x52414D53UL  /* "SMAR" */
